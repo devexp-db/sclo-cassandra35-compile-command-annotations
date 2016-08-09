@@ -1,21 +1,25 @@
-Name:          compile-command-annotations
+%{?scl:%scl_package compile-command-annotations}
+%{!?scl:%global pkg_name %{name}}
+
+Name:          %{?scl_prefix}compile-command-annotations
 Version:       1.2.0
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Hotspot compile command annotations
 License:       ASL 2.0
-URL:           https://github.com/nicoulaj/compile-command-annotations
-Source0:       https://github.com/nicoulaj/compile-command-annotations/archive/%{version}.tar.gz
+URL:           https://github.com/nicoulaj/%{pkg_name}
+Source0:       https://github.com/nicoulaj/%{pkg_name}/archive/%{version}.tar.gz
 
-BuildRequires: maven-local
-BuildRequires: mvn(com.google.guava:guava)
-BuildRequires: mvn(commons-io:commons-io)
+BuildRequires: %{?scl_mvn_prefix}maven-local
+BuildRequires: %{?scl_java_prefix}mvn(com.google.guava:guava)
+BuildRequires: %{?scl_java_prefix}mvn(commons-io:commons-io)
 #BuildRequires: mvn(org.apache.maven.plugins:maven-invoker-plugin)
-BuildRequires: mvn(org.assertj:assertj-core)
-BuildRequires: mvn(org.codehaus.mojo:build-helper-maven-plugin)
-BuildRequires: mvn(org.codehaus.mojo:exec-maven-plugin)
+%{!?scl:BuildRequires: mvn(org.assertj:assertj-core)}
+BuildRequires: %{?scl_mvn_prefix}mvn(org.codehaus.mojo:build-helper-maven-plugin)
+BuildRequires: %{?scl_mvn_prefix}mvn(org.codehaus.mojo:exec-maven-plugin)
 BuildRequires: mvn(org.testng:testng)
 # For IT suite
 #BuildRequires: mvn(org.codehaus.groovy:groovy)
+%{?scl:Requires: %scl_runtime}
 
 BuildArch:     noarch
 
@@ -30,7 +34,8 @@ Summary:       Javadoc for %{name}
 This package contains javadoc for %{name}.
 
 %prep
-%setup -q -n %{name}-%{version}
+%{?scl_enable}
+%setup -q -n %{pkg_name}-%{version}
 
 # net.ju-n:net-ju-n-parent:32
 %pom_remove_parent
@@ -52,14 +57,22 @@ This package contains javadoc for %{name}.
 %pom_change_dep :fest-assert-core org.assertj:assertj-core:'${assertj-core.version}'
 find ./ -name "*.java" -exec sed -i "s/org.fest.assertions/org.assertj.core/g" {} +
 
-%mvn_file net.ju-n.compile-command-annotations:%{name} %{name}
+# remove test dependency for scl version of the package
+%{?scl:%pom_remove_dep org.assertj:assertj-core}
+%{?scl:rm -rf src/test}
+
+%mvn_file net.ju-n.%{pkg_name}:%{pkg_name} %{pkg_name}
+%{?scl_disable}
 
 %build
-
+%{?scl_enable}
 %mvn_build -- -Dproject.build.sourceEncoding=UTF-8
+%{?scl_disable}
 
 %install
+%{?scl_enable}
 %mvn_install
+%{?scl_disable}
 
 %files -f .mfiles
 %doc README.md
@@ -69,5 +82,8 @@ find ./ -name "*.java" -exec sed -i "s/org.fest.assertions/org.assertj.core/g" {
 %license COPYING
 
 %changelog
+* Wed Aug 03 2016 Tomas Repik <trepik@redhat.com> - 1.2.0-2
+- scl conversion
+
 * Mon Jul 20 2015 gil cattaneo <puntogil@libero.it> 1.2.0-1
 - initial rpm
