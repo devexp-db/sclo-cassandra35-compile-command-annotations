@@ -3,20 +3,20 @@
 
 Name:          %{?scl_prefix}compile-command-annotations
 Version:       1.2.0
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Hotspot compile command annotations
 License:       ASL 2.0
 URL:           https://github.com/nicoulaj/%{pkg_name}
 Source0:       https://github.com/nicoulaj/%{pkg_name}/archive/%{version}.tar.gz
 
-BuildRequires: %{?scl_mvn_prefix}maven-local
-BuildRequires: %{?scl_java_prefix}mvn(com.google.guava:guava)
-BuildRequires: %{?scl_java_prefix}mvn(commons-io:commons-io)
-#BuildRequires: mvn(org.apache.maven.plugins:maven-invoker-plugin)
-%{!?scl:BuildRequires: mvn(org.assertj:assertj-core)}
-BuildRequires: %{?scl_mvn_prefix}mvn(org.codehaus.mojo:build-helper-maven-plugin)
-BuildRequires: %{?scl_mvn_prefix}mvn(org.codehaus.mojo:exec-maven-plugin)
+BuildRequires: %{?scl_prefix_maven}maven-local
+BuildRequires: %{?scl_prefix_maven}mvn(org.codehaus.mojo:build-helper-maven-plugin)
+BuildRequires: %{?scl_prefix_maven}mvn(org.codehaus.mojo:exec-maven-plugin)
+BuildRequires: %{?scl_prefix_java_common}mvn(com.google.guava:guava)
+BuildRequires: %{?scl_prefix_java_common}mvn(commons-io:commons-io)
 BuildRequires: mvn(org.testng:testng)
+# dependency only used for testing, not needed in SCL package
+%{!?scl:BuildRequires: mvn(org.assertj:assertj-core)}
 # For IT suite
 #BuildRequires: mvn(org.codehaus.groovy:groovy)
 %{?scl:Requires: %scl_runtime}
@@ -34,9 +34,9 @@ Summary:       Javadoc for %{name}
 This package contains javadoc for %{name}.
 
 %prep
-%{?scl_enable}
 %setup -q -n %{pkg_name}-%{version}
 
+%{?scl:scl enable %{scl_maven} %{scl} - << "EOF"}
 # net.ju-n:net-ju-n-parent:32
 %pom_remove_parent
 
@@ -62,17 +62,17 @@ find ./ -name "*.java" -exec sed -i "s/org.fest.assertions/org.assertj.core/g" {
 %{?scl:rm -rf src/test}
 
 %mvn_file net.ju-n.%{pkg_name}:%{pkg_name} %{pkg_name}
-%{?scl_disable}
+%{?scl:EOF}
 
 %build
-%{?scl_enable}
+%{?scl:scl enable %{scl_maven} %{scl} - << "EOF"}
 %mvn_build -- -Dproject.build.sourceEncoding=UTF-8
-%{?scl_disable}
+%{?scl:EOF}
 
 %install
-%{?scl_enable}
+%{?scl:scl enable %{scl_maven} %{scl} - << "EOF"}
 %mvn_install
-%{?scl_disable}
+%{?scl:EOF}
 
 %files -f .mfiles
 %doc README.md
@@ -82,6 +82,9 @@ find ./ -name "*.java" -exec sed -i "s/org.fest.assertions/org.assertj.core/g" {
 %license COPYING
 
 %changelog
+* Tue Oct 11 2016 Tomas Repik <trepik@redhat.com> - 1.2.0-3
+- use standard SCL macros
+
 * Wed Aug 03 2016 Tomas Repik <trepik@redhat.com> - 1.2.0-2
 - scl conversion
 
