@@ -1,34 +1,35 @@
 %{?scl:%scl_package compile-command-annotations}
 %{!?scl:%global pkg_name %{name}}
 
-Name:          %{?scl_prefix}compile-command-annotations
-Version:       1.2.0
-Release:       3%{?dist}
-Summary:       Hotspot compile command annotations
-License:       ASL 2.0
-URL:           https://github.com/nicoulaj/%{pkg_name}
-Source0:       https://github.com/nicoulaj/%{pkg_name}/archive/%{version}.tar.gz
+Name:		%{?scl_prefix}compile-command-annotations
+Version:	1.2.0
+Release:	4%{?dist}
+Summary:	Hotspot compile command annotations
+License:	ASL 2.0
+URL:		https://github.com/nicoulaj/%{pkg_name}
+Source0:	https://github.com/nicoulaj/%{pkg_name}/archive/%{version}.tar.gz
 
-BuildRequires: %{?scl_prefix_maven}maven-local
-BuildRequires: %{?scl_prefix_maven}mvn(org.codehaus.mojo:build-helper-maven-plugin)
-BuildRequires: %{?scl_prefix_maven}mvn(org.codehaus.mojo:exec-maven-plugin)
-BuildRequires: %{?scl_prefix_java_common}mvn(com.google.guava:guava)
-BuildRequires: %{?scl_prefix_java_common}mvn(commons-io:commons-io)
-BuildRequires: mvn(org.testng:testng)
-# dependency only used for testing, not needed in SCL package
-%{!?scl:BuildRequires: mvn(org.assertj:assertj-core)}
+BuildRequires:	%{?scl_prefix_maven}maven-local
+BuildRequires:	%{?scl_prefix_maven}maven-plugin-build-helper
+BuildRequires:	%{?scl_prefix_maven}exec-maven-plugin
+BuildRequires:	%{?scl_prefix}guava
+BuildRequires:	%{?scl_prefix_java_common}apache-commons-io
+BuildRequires:	%{?scl_prefix_maven}testng
+BuildRequires:	%{?scl_prefix}assertj-core
+BuildRequires:	%{?scl_prefix_maven}mockito
+BuildRequires:	%{?scl_prefix}cglib
 # For IT suite
-#BuildRequires: mvn(org.codehaus.groovy:groovy)
+#BuildRequires:	mvn(org.codehaus.groovy:groovy)
 %{?scl:Requires: %scl_runtime}
 
-BuildArch:     noarch
+BuildArch:	noarch
 
 %description
 Annotation based configuration file generator for the
 Hotspot JVM JIT compiler.
 
 %package javadoc
-Summary:       Javadoc for %{name}
+Summary:	Javadoc for %{name}
 
 %description javadoc
 This package contains javadoc for %{name}.
@@ -57,10 +58,6 @@ This package contains javadoc for %{name}.
 %pom_change_dep :fest-assert-core org.assertj:assertj-core:'${assertj-core.version}'
 find ./ -name "*.java" -exec sed -i "s/org.fest.assertions/org.assertj.core/g" {} +
 
-# remove test dependency for scl version of the package
-%{?scl:%pom_remove_dep org.assertj:assertj-core}
-%{?scl:rm -rf src/test}
-
 %mvn_file net.ju-n.%{pkg_name}:%{pkg_name} %{pkg_name}
 %{?scl:EOF}
 
@@ -82,6 +79,9 @@ find ./ -name "*.java" -exec sed -i "s/org.fest.assertions/org.assertj.core/g" {
 %license COPYING
 
 %changelog
+* Wed Mar 29 2017 Tomas Repik <trepik@redhat.com> - 1.2.0-4
+- use newly added assertj-core and run tests
+
 * Tue Oct 11 2016 Tomas Repik <trepik@redhat.com> - 1.2.0-3
 - use standard SCL macros
 
