@@ -18,6 +18,7 @@ BuildRequires:	%{?scl_prefix_maven}testng
 BuildRequires:	%{?scl_prefix}assertj-core
 BuildRequires:	%{?scl_prefix_maven}mockito
 BuildRequires:	%{?scl_prefix}cglib
+BuildRequires:	%{?scl_prefix}snakeyaml
 # For IT suite
 #BuildRequires:	mvn(org.codehaus.groovy:groovy)
 %{?scl:Requires: %scl_runtime}
